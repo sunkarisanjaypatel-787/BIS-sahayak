@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bis-blue: #264796;
+  --bis-red: #e31e24;
+  --dark-blue: #212c58;
+  --teal: #287581;
+  --saffron: #f5b74c;
+  --off-white: #fffdf3;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #f3f4f6;
+  color: #1a1f2e;
+}
+
+/* Visible, high-contrast focus rings everywhere for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--bis-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--bis-blue);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 6px 0;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Prose styling for assistant markdown-ish content */
+.assistant-prose p {
+  margin: 0 0 0.6rem 0;
+}
+.assistant-prose p:last-child {
+  margin-bottom: 0;
+}
+.assistant-prose ul,
+.assistant-prose ol {
+  margin: 0.4rem 0 0.6rem 1.25rem;
+}
+.assistant-prose li {
+  margin-bottom: 0.25rem;
+}
+.assistant-prose ul {
+  list-style: disc;
+}
+.assistant-prose ol {
+  list-style: decimal;
+}
+.assistant-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0 0.75rem 0;
+  font-size: 0.85rem;
+}
+.assistant-prose th,
+.assistant-prose td {
+  border: 1px solid #dbe2ea;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.assistant-prose th {
+  background: #eef1f8;
+  font-weight: 600;
+}
+.assistant-prose code {
+  background: #eef1f8;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+.assistant-prose strong {
+  font-weight: 600;
+  color: var(--dark-blue);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

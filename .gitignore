@@ -1,0 +1,19 @@
+# Python & Environments
+__pycache__/
+venv/
+*.pyc
+.env
+
+# Node & Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Data & Databases
+bis_standards/
+Backend/parsed_bis_knowledge.json
+qdrant_storage/
+*.db
+
+# OS Files
+.DS_Store
