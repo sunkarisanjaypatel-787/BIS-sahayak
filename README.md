@@ -4,7 +4,7 @@ An offline, air-gapped Retrieval-Augmented Generation (RAG) assistant designed f
 
 ## ⚡ Key Highlights
 
-* **Air-Gapped 2-Node Edge Architecture:** Separates orchestration and vector search from local GPU-accelerated inference.
+* **Air-Gapped monolithic Edge Architecture:** Separates orchestration and vector search from local GPU-accelerated inference.
 * **Zero-Hallucination Retrieval:** Every generated answer strictly cites Indian Standards (IS), clause numbers, and verified source snippets.
 * **High-Fidelity Document Processing:** End-to-end table and layout extraction from dense technical standards using Docling.
 * **Official Identity:** Built using the official Bureau of Indian Standards design palette.
