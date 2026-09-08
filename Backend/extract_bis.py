@@ -38,7 +38,7 @@ def build_extraction_pipeline():
         }
     )
 
-    pdf_directory = Path("./bis_standards")
+    pdf_directory = Path("./Backend")
     pdf_directory.mkdir(exist_ok=True)
     output_file = Path("Backend/parsed_bis_knowledge.json")
     

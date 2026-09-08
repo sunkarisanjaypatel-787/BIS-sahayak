@@ -11,7 +11,7 @@ interface ChatPanelProps {
   messages: Message[];
   inputValue: string;
   onInputChange: (v: string) => void;
-  onSend: () => void;
+  onSend: (customPrompt?: string) => void;
   onQuickPrompt: (prompt: string) => void;
   isStreaming: boolean;
   mode: PersonaMode;

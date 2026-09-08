@@ -85,6 +85,9 @@ export async function streamAssistantResponse(
 ): Promise<void> {
   const { onToken, onCitations, onEvidence, onError, onDone } = callbacks;
 
+  const isolatedPrompt = prompt.trim();
+  const activePersona = mode || "consumer";
+
   let res: Response;
   try {
     res = await fetch(`${API_URL}/query`, {
@@ -93,7 +96,10 @@ export async function streamAssistantResponse(
         "Content-Type": "application/json",
         Accept: "text/event-stream",
       },
-      body: JSON.stringify({ prompt, mode }),
+      body: JSON.stringify({
+        prompt: isolatedPrompt,
+        mode: activePersona,
+      }),
       signal,
     });
   } catch (err) {
@@ -117,6 +123,60 @@ export async function streamAssistantResponse(
   const reader = res.body.getReader();
   const decoder = new TextDecoder("utf-8");
   let buffer = "";
+  let currentEvent = "";
+
+  const processDataLine = (dataStr: string) => {
+    if (!dataStr || dataStr === "[DONE]") return;
+
+    if (currentEvent === "sources") {
+      try {
+        const parsed = JSON.parse(dataStr);
+        const sources = Array.isArray(parsed)
+          ? parsed
+          : parsed.sources || parsed.evidence || [parsed];
+        onEvidence?.(normalizeEvidence(sources));
+      } catch (err) {
+        console.error("Failed to parse SSE sources payload:", err);
+      }
+      return;
+    }
+
+    // Check if dataStr is an array payload without explicit event: sources
+    if (dataStr.startsWith("[") && dataStr.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(dataStr);
+        if (Array.isArray(parsed)) {
+          onEvidence?.(normalizeEvidence(parsed));
+          return;
+        }
+      } catch {}
+    }
+
+    // Check if dataStr is structured JSON object
+    if (dataStr.startsWith("{") && dataStr.endsWith("}")) {
+      try {
+        const parsed: QueryResponsePayload = JSON.parse(dataStr);
+        if (parsed.delta) onToken(parsed.delta);
+        else if (parsed.content) onToken(parsed.content);
+        else if (parsed.answer) onToken(parsed.answer);
+        else if ((parsed as any).response) onToken((parsed as any).response);
+        else if ((parsed as any).token) onToken((parsed as any).token);
+        else onToken(dataStr);
+
+        if (parsed.citations?.length) onCitations?.(normalizeCitations(parsed.citations));
+
+        const rawEvidence = parsed.evidence || parsed.sources || parsed.hits;
+        if (rawEvidence?.length) onEvidence?.(normalizeEvidence(rawEvidence));
+        return;
+      } catch {
+        onToken(dataStr);
+        return;
+      }
+    }
+
+    // Standard string token stream
+    onToken(dataStr);
+  };
 
   try {
     while (true) {
@@ -131,30 +191,40 @@ export async function streamAssistantResponse(
 
       for (const rawLine of lines) {
         const line = rawLine.replace(/\r$/, "");
-        if (!line.trim()) continue;
+        if (line === "") {
+          // Empty line indicates end of an SSE message block
+          currentEvent = "";
+          continue;
+        }
+
+        if (line.startsWith("event:")) {
+          currentEvent = line.slice(6).trim();
+          continue;
+        }
 
         if (line.startsWith("data:")) {
-          const token = line.startsWith('data: ') ? line.slice(6) : line.replace(/^data:/, '');
-          if (token === "[DONE]") continue;
-          consumeChunk(token, { onToken, onCitations, onEvidence });
-        } else if (line.startsWith("event:") || line.startsWith("id:")) {
-          // Ignore SSE metadata lines; content lives in the following "data:" line.
+          const dataStr = line.startsWith("data: ") ? line.slice(6) : line.slice(5);
+          processDataLine(dataStr);
           continue;
-        } else {
-          consumeChunk(line, { onToken, onCitations, onEvidence });
         }
+
+        if (line.startsWith("id:") || line.startsWith(":")) {
+          // SSE identifier or comment line
+          continue;
+        }
+
+        // Non-SSE raw line fallback
+        consumeChunk(line, { onToken, onCitations, onEvidence });
       }
     }
 
     if (buffer.trim()) {
       const line = buffer.replace(/\r$/, "");
-      const token = line.startsWith('data: ') ? line.slice(6) : line.replace(/^data:/, '');
-      if (token && token !== "[DONE]") {
-        consumeChunk(token, {
-          onToken,
-          onCitations,
-          onEvidence,
-        });
+      if (line.startsWith("data:")) {
+        const dataStr = line.startsWith("data: ") ? line.slice(6) : line.slice(5);
+        processDataLine(dataStr);
+      } else if (!line.startsWith("event:") && !line.startsWith("id:") && !line.startsWith(":")) {
+        consumeChunk(line, { onToken, onCitations, onEvidence });
       }
     }
 
@@ -177,10 +247,15 @@ function consumeChunk(
 
   // Try to parse as JSON first (structured streaming payload).
   try {
-    const parsed: QueryResponsePayload = JSON.parse(chunk);
+    const parsed: any = JSON.parse(chunk);
+    if (Array.isArray(parsed)) {
+      cb.onEvidence?.(normalizeEvidence(parsed));
+      return;
+    }
     if (parsed.delta) cb.onToken(parsed.delta);
     else if (parsed.content) cb.onToken(parsed.content);
     else if (parsed.answer) cb.onToken(parsed.answer);
+    else if (parsed.response) cb.onToken(parsed.response);
 
     if (parsed.citations?.length) cb.onCitations?.(normalizeCitations(parsed.citations));
 

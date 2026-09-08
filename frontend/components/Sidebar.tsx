@@ -61,7 +61,7 @@ function NavList({
 export default function Sidebar({
   isOpen,
   onClose,
-  activeTab = "AI Assistant",
+  activeTab = "Dashboard",
   onSelectTab,
 }: SidebarProps) {
   const handleTabClick = (tab: string) => {

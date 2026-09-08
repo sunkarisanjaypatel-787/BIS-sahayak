@@ -14,13 +14,12 @@ An offline, air-gapped Retrieval-Augmented Generation (RAG) assistant designed f
     [ Next.js 14 Frontend ] 
              │ (HTTP / SSE)
              ▼
-    [ Node 1: FastAPI Orchestrator (Mac) ]
+        FastAPI Orchestrator (Mac)
         ├── Qdrant Vector Store (1024-d, Cosine)
         └── BAAI/bge-m3 Embeddings
              │ (LAN / HTTP)
              ▼
-    [ Node 2: Dedicated Inference Node (Asus TUF - RTX 2050) ]
-        └── Ollama (Llama-3.2:3B)
+        Ollama (Llama-3.2:3B)
 
 ## 🛠️ Tech Stack
 

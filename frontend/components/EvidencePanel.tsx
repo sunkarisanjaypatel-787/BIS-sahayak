@@ -45,7 +45,7 @@ export default function EvidencePanel({
           <p className="text-xs text-slate-500">Source-backed information from BIS documents</p>
         </div>
         {hasSources && (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-teal/10 px-2.5 py-1 text-[11px] font-semibold text-teal">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-bis-blue/10 px-2.5 py-1 text-[11px] font-semibold text-bis-blue">
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
             {items.length} {items.length === 1 ? "Source" : "Sources"} Verified
           </span>

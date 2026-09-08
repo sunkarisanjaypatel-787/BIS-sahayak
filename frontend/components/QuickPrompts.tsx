@@ -1,6 +1,6 @@
 "use client";
 
-const PROMPTS = ["IS 10500 TDS Limits", "Gold Hallmark Verification", "IS 456 Concrete Slump Test"];
+const PROMPTS = ["Gold Hallmark Verification", "IS 1417 Purity Grades", "IS 1417 Marking Requirements"];
 
 interface QuickPromptsProps {
   onSelect: (prompt: string) => void;

@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import ChatPanel from "@/components/ChatPanel";
 import EvidencePanel from "@/components/EvidencePanel";
+import DashboardView from "@/components/DashboardView";
 import FeaturePlaceholder from "@/components/FeaturePlaceholder";
 import { checkOrchestratorHealth, streamAssistantResponse } from "@/lib/api";
 import type {
@@ -21,7 +22,7 @@ function createId() {
 }
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<string>("AI Assistant");
+  const [activeTab, setActiveTab] = useState<string>("Dashboard");
   const [mode, setMode] = useState<PersonaMode>("consumer");
   const [language, setLanguage] = useState<"en" | "hi">("en");
   const [fontScale, setFontScale] = useState(1);
@@ -60,6 +61,18 @@ export default function Home() {
       const trimmed = prompt.trim();
       if (!trimmed || isStreaming) return;
 
+      // Abort previous in-flight request if any
+      if (abortRef.current) {
+        abortRef.current.abort();
+        abortRef.current = null;
+      }
+
+      // 1. Instant State Reset: Purge stale cards and prior streaming response immediately
+      setEvidenceList([]);
+      setEvidenceState("loading");
+      setActiveCitationIndex(null);
+      setInputValue("");
+
       const userMessage: Message = {
         id: createId(),
         role: "user",
@@ -75,11 +88,12 @@ export default function Home() {
         isStreaming: true,
       };
 
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
-      setInputValue("");
+      setMessages((prev) => [
+        ...prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m)),
+        userMessage,
+        assistantMessage,
+      ]);
       setIsStreaming(true);
-      setEvidenceState("loading");
-      setActiveCitationIndex(null);
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -104,8 +118,9 @@ export default function Home() {
             );
           },
           onEvidence: (sources) => {
+            // Update UI with fresh isolated evidence
             setEvidenceList(sources);
-            setEvidenceState("success");
+            setEvidenceState(sources.length > 0 ? "success" : "empty");
           },
           onError: () => {
             setConnectionState("offline");
@@ -143,12 +158,15 @@ export default function Home() {
     [mode, isStreaming]
   );
 
-  function handleSend() {
-    handleQuerySubmit(inputValue);
+  function handleSend(customPrompt?: string) {
+    const text = typeof customPrompt === "string" ? customPrompt : inputValue;
+    setInputValue("");
+    handleQuerySubmit(text);
   }
 
   function handleQuickPrompt(prompt: string) {
-    setInputValue(prompt);
+    // Purge any dirty or partially-typed input field state and submit exact literal string directly
+    setInputValue("");
     handleQuerySubmit(prompt);
   }
 
@@ -187,7 +205,9 @@ export default function Home() {
           id="main-content"
           className="flex min-w-0 flex-1 flex-col gap-4 lg:h-[calc(100vh-97px)]"
         >
-          {activeTab === "AI Assistant" ? (
+          {activeTab === "Dashboard" ? (
+            <DashboardView onNavigateToAssistant={() => setActiveTab("AI Assistant")} />
+          ) : activeTab === "AI Assistant" ? (
             <div className="flex h-full min-w-0 flex-1 flex-col gap-4 lg:flex-row">
               <div className="min-h-[420px] flex-1 lg:h-full lg:min-h-0 lg:basis-[60%]">
                 <ChatPanel
