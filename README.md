@@ -38,13 +38,13 @@ An offline, air-gapped Retrieval-Augmented Generation (RAG) assistant designed f
 `docker run -d -p 6333:6333 -p 6334:6334 qdrant/qdrant`
 
 ### 2. Ingestion Pipeline
-`python3 Backend/fetch_standards.py`
-`python3 Backend/extract_bis.py`
-`python3 Backend/seed_qdrant.py`
+`python3 backend/scripts/fetch_standards.py`
+`python3 backend/scripts/extract_bis.py`
+`python3 backend/scripts/seed_qdrant.py`
 
 ### 3. Orchestration Server
 `source venv/bin/activate`
-`uvicorn Backend.embed_api:app --host 0.0.0.0 --port 8000`
+`uvicorn backend.app.embed_api:app --host 0.0.0.0 --port 8000`
 
 ### 4. Next.js Frontend
 `cd frontend`

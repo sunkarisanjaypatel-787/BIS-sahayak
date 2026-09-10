@@ -1,7 +1,9 @@
 import os
+from pathlib import Path
 from internetarchive import search_items, download
 
-os.makedirs('bis_standards', exist_ok=True)
+DEST_DIR = Path(__file__).resolve().parent.parent / "data" / "bis_standards"
+DEST_DIR.mkdir(parents=True, exist_ok=True)
 
 # Your exact target ingestion list
 target_standards = [
@@ -31,7 +33,7 @@ for standard in target_standards:
         try:
             download(
                 identifier, 
-                destdir='bis_standards', 
+                destdir=str(DEST_DIR), 
                 glob_pattern='*.pdf', 
                 no_directory=True
             )

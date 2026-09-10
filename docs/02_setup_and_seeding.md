@@ -38,8 +38,8 @@ A Retrieval-Augmented Generation (RAG) system is only as intelligent as the data
 The first stage requires converting raw BIS PDFs into structured Markdown without losing tabular data or headers.
 
 * **Source Data Placement:** Place the raw PDFs (e.g., `IS1417-2016.pdf`, `IS_10500_2012.pdf`) into a designated staging directory, such as `Backend/data/`.
-* **Docling Extraction Execution:** Run your extraction script (`Backend/extract_bis.py`) which utilizes the `docling` library.
-* **The Output Mechanism:** Docling executes a layout-aware parse, preserving multi-column formats and converting regulatory tables into clean Markdown tables. The output is saved into `Backend/extracted_markdown/` as `.md` files.
+* **Docling Extraction Execution:** Run your extraction script (`backend/scripts/extract_bis.py`) which utilizes the `docling` library.
+* **The Output Mechanism:** Docling executes a layout-aware parse, preserving multi-column formats and converting regulatory tables into clean Markdown tables. The output is saved into `backend/extracted_markdown/` as `.md` files.
 
 ### 3. Structural Chunking Strategy (LangChain)
 
@@ -49,7 +49,7 @@ Once the documents are converted to Markdown, they must be carved into chunks sm
 * **Chunk Parameters:**
   * `chunk_size`: Set to ~1000 characters to capture full regulatory clauses.
   * `chunk_overlap`: Set to ~400 characters. This aggressive overlap ensures that a table row is never severed from its preceding column headers or contextual clause definition.
-* **Execution:** This chunking occurs natively within the `seed_qdrant.py` script prior to the embedding phase.
+* **Execution:** This chunking occurs natively within the `backend/scripts/seed_qdrant.py` script prior to the embedding phase.
 
 ### 4. Vector Embedding & Qdrant Seeding Protocol
 
@@ -59,7 +59,7 @@ This final stage translates the chunked text into high-dimensional mathematics a
 * **Seeding Command:**
   Execute the master ingestion script from your terminal:
   ```bash
-  python3 Backend/seed_qdrant.py
+  python3 backend/scripts/seed_qdrant.py
   ```
 * **Validation Check:** Watch the terminal output. You must verify that the script iterates through all Markdown files (e.g., verifying IS 10500 alongside IS 1417).
 * **Payload Construction:** As the script pushes batches to Qdrant, it must append the critical metadata payload (e.g., `"standard": "IS 10500:2012"`, `"category": "Water Quality"`) to each point. This metadata is what the frontend UI maps to the "Verified Evidence" cards.

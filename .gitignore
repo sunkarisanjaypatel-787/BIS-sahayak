@@ -24,8 +24,8 @@ __pycache__/
 qdrant_storage/
 *.db
 *.sqlite3
-bis_standards/
-Backend/parsed_bis_knowledge.json
+backend/data/bis_standards/
+backend/parsed_bis_knowledge.json
 
 # Environment & Secret variables
 .env

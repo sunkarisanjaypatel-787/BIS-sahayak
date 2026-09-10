@@ -38,15 +38,16 @@ def build_extraction_pipeline():
         }
     )
 
-    pdf_directory = Path("./Backend")
-    pdf_directory.mkdir(exist_ok=True)
-    output_file = Path("Backend/parsed_bis_knowledge.json")
+    base_dir = Path(__file__).resolve().parent.parent
+    pdf_directory = base_dir / "data" / "bis_standards"
+    pdf_directory.mkdir(parents=True, exist_ok=True)
+    output_file = base_dir / "parsed_bis_knowledge.json"
     
     extracted_nodes = []
 
     print("[*] Initiating Docling Extraction Sequence...")
     
-    for pdf_path in pdf_directory.glob("*.pdf"):
+    for pdf_path in pdf_directory.rglob("*.pdf"):
         print(f"    -> Parsing {pdf_path.name}")
         category = determine_category(pdf_path.name)
         
@@ -69,3 +70,4 @@ def build_extraction_pipeline():
 
 if __name__ == "__main__":
     build_extraction_pipeline()
+

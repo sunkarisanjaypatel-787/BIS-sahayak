@@ -5,6 +5,8 @@ from qdrant_client.models import Distance, VectorParams, PointStruct
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import MarkdownTextSplitter
 
+from pathlib import Path
+
 embed_model = SentenceTransformer("BAAI/bge-m3", device="cpu")
 client = QdrantClient(host="localhost", port=6333)
 
@@ -14,7 +16,8 @@ client.recreate_collection(
     vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
 )
 
-with open("Backend/parsed_bis_knowledge.json", "r", encoding="utf-8") as f:
+data_file = Path(__file__).resolve().parent.parent / "parsed_bis_knowledge.json"
+with open(data_file, "r", encoding="utf-8") as f:
     documents = json.load(f)
 
 # Chunk at 1000 characters with a 200 character overlap to preserve table context
