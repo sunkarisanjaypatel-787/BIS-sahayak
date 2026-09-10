@@ -1,19 +1,37 @@
-# Python & Environments
-__pycache__/
-venv/
-*.pyc
-.env
-
-# Node & Next.js
+# Dependencies & Environments
+node_modules/
 frontend/node_modules/
-frontend/.next/
-frontend/out/
+venv/
+.venv/
+env/
 
-# Data & Databases
-bis_standards/
-Backend/parsed_bis_knowledge.json
+# Build outputs
+.next/
+frontend/.next/
+dist/
+out/
+frontend/out/
+build/
+*.egg-info/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+
+# Local Databases & Volumes
 qdrant_storage/
 *.db
+*.sqlite3
+bis_standards/
+Backend/parsed_bis_knowledge.json
 
-# OS Files
+# Environment & Secret variables
+.env
+.env.local
+.env.*.local
+
+# OS Artifacts
 .DS_Store
+Thumbs.db
